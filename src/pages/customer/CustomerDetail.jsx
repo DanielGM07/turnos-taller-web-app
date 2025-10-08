@@ -1,229 +1,474 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+// CustomerDetail.jsx (MUI) — conectado a la API con RTK Query
+import { useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
 import {
-  Avatar,
   Box,
-  Card,
-  CardContent,
-  CardHeader,
-  Chip,
-  Container,
-  Divider,
-  Grid,
-  IconButton,
-  Paper,
-  Skeleton,
-  Stack,
-  Tooltip,
   Typography,
+  Avatar,
+  CardContent,
+  Tabs,
+  Tab,
+  Divider,
+  Paper,
+  Grid,
+  Chip,
+  Stack,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  IconButton,
+  Tooltip,
+  Button,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
-import { Edit, DirectionsCarFilled } from "@mui/icons-material";
-import { customers, vehiclesByCustomer } from "./mocks/customers";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import DirectionsCarFilledIcon from "@mui/icons-material/DirectionsCarFilled";
+import BadgeIcon from "@mui/icons-material/Badge";
+import MailOutlineIcon from "@mui/icons-material/MailOutline";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
+import PhoneIphoneOutlinedIcon from "@mui/icons-material/PhoneIphoneOutlined";
 
+// Hooks generados por tu slice RTK Query
+import {
+  useViewCustomerQuery,
+  useCustomerListVehiclesQuery,
+  useCustomerListAppointmentsQuery,
+} from "../../apis/customer/customer.api"; // ajustá la ruta si difiere
+
+// --- Utilidades simples ---
 const formatDate = (iso) => {
   if (!iso) return "-";
-  // si viene YYYY-MM-DD lo mostramos con locale
-  const d = new Date(iso + (iso.length === 10 ? "T00:00:00Z" : ""));
-  return isNaN(d) ? iso : d.toLocaleDateString();
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return new Intl.DateTimeFormat(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "2-digit",
+  }).format(d);
 };
 
-const getInitials = (first, last) =>
-  [first?.[0], last?.[0]].filter(Boolean).join("").toUpperCase() || "?";
+const formatTime = (iso) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d)) return "";
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+};
 
-function VehicleCard({ vehicle }) {
+const ageFromBirthDate = (iso) => {
+  const d = new Date(iso);
+  if (isNaN(d)) return undefined;
+  const today = new Date();
+  let age = today.getFullYear() - d.getFullYear();
+  const m = today.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
+  return age;
+};
+
+const initialsFrom = (first = "", last = "") =>
+  `${first?.[0] ?? ""}${last?.[0] ?? ""}`.toUpperCase();
+
+const copy = async (text) => {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {}
+};
+
+function LabeledValue({ label, value, icon, copyable }) {
   return (
-    <Card sx={{ height: "100%" }}>
-      <CardHeader
-        avatar={<DirectionsCarFilled />}
-        title={`${vehicle.brand ?? "Marca"} ${vehicle.model ?? ""}`.trim()}
-        subheader={vehicle.year ? `Año ${vehicle.year}` : ""}
-      />
-      <CardContent>
-        <Stack spacing={1}>
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Typography
-              variant="body2"
-              sx={{ minWidth: 90, color: "text.secondary" }}
+    <Box sx={{ mb: 2 }}>
+      <Typography variant="body1" color="gray">
+        {label}
+      </Typography>
+      <Stack direction="row" alignItems="center" spacing={1}>
+        {icon}
+        <Typography variant="h6" sx={{ wordBreak: "break-word" }}>
+          {value ?? "-"}
+        </Typography>
+        {copyable && value ? (
+          <Tooltip title="Copiar">
+            <IconButton
+              size="small"
+              onClick={() => copy(value)}
+              aria-label={`Copiar ${label}`}
             >
-              Patente:
-            </Typography>
-            <Chip label={vehicle.plate ?? "-"} size="small" />
-          </Stack>
-          {vehicle.color && (
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Typography
-                variant="body2"
-                sx={{ minWidth: 90, color: "text.secondary" }}
-              >
-                Color:
-              </Typography>
-              <Typography variant="body2">{vehicle.color}</Typography>
-            </Stack>
-          )}
-        </Stack>
-      </CardContent>
-    </Card>
+              <ContentCopyIcon fontSize="inherit" />
+            </IconButton>
+          </Tooltip>
+        ) : null}
+      </Stack>
+    </Box>
+  );
+}
+
+function AppointmentsList({ items = [] }) {
+  const byDate = useMemo(
+    () =>
+      [...items].sort(
+        (a, b) =>
+          new Date(a.date || a.start || a.when) -
+          new Date(b.date || b.start || b.when),
+      ),
+    [items],
+  );
+  return (
+    <List>
+      {byDate.map((a) => {
+        const dateStr = a.date || a.start || a.when;
+        const title = a.title || a.reason || a.service_name || "Turno";
+        const status = (a.status || a.state || "").toLowerCase();
+        return (
+          <ListItem
+            key={a.id || `${dateStr}-${title}`}
+            sx={{ borderRadius: 2, mb: 1 }}
+          >
+            <ListItemIcon>
+              <CalendarMonthIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary={`${formatDate(dateStr)} — ${formatTime(dateStr)}`}
+              secondary={title}
+            />
+            {status && (
+              <Chip
+                size="small"
+                label={status}
+                color={
+                  status.includes("confirm")
+                    ? "success"
+                    : status.includes("cancel")
+                      ? "error"
+                      : "warning"
+                }
+              />
+            )}
+          </ListItem>
+        );
+      })}
+    </List>
+  );
+}
+
+function VehiclesList({ items = [] }) {
+  return (
+    <List>
+      {items.map((v) => (
+        <ListItem key={v.id || v.plate} sx={{ borderRadius: 2, mb: 1 }}>
+          <ListItemIcon>
+            <DirectionsCarFilledIcon />
+          </ListItemIcon>
+          <ListItemText
+            primary={`${v.brand || v.make || "Vehículo"} ${v.model || ""} ${v.year || ""}`.trim()}
+            secondary={`Patente: ${v.plate || v.license_plate || "-"}${v.color ? ` • Color: ${v.color}` : ""}`}
+          />
+        </ListItem>
+      ))}
+    </List>
   );
 }
 
 export default function CustomerDetail() {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { id: customerId } = useParams();
+  const [tabIndex, setTabIndex] = useState(0);
 
-  const [loading, setLoading] = useState(true);
-  const [customer, setCustomer] = useState(null);
-  const [vehicles, setVehicles] = useState([]);
+  // Datos del cliente
+  const {
+    data: customer,
+    isLoading: isLoadingCustomer,
+    isError: isErrorCustomer,
+    refetch: refetchCustomer,
+  } = useViewCustomerQuery(customerId, { skip: !customerId });
 
-  // Simulamos “fetch” con un timeout corto para ver skeletons
-  useEffect(() => {
-    const t = setTimeout(() => {
-      const c = customers.find((x) => x.id === id) ?? customers[0];
-      setCustomer(c);
-      setVehicles(vehiclesByCustomer[c.id] ?? []);
-      setLoading(false);
-    }, 300);
-    return () => clearTimeout(t);
-  }, [id]);
+  // Vehículos del cliente
+  const {
+    data: vehiclesData,
+    isLoading: isLoadingVehicles,
+    isError: isErrorVehicles,
+    refetch: refetchVehicles,
+  } = useCustomerListVehiclesQuery({ customerId }, { skip: !customerId });
 
-  const initials = useMemo(
-    () => getInitials(customer?.first_name, customer?.last_name),
-    [customer],
-  );
+  // Turnos del cliente
+  const {
+    data: apptsData,
+    isLoading: isLoadingAppts,
+    isError: isErrorAppts,
+    refetch: refetchAppts,
+  } = useCustomerListAppointmentsQuery({ customerId }, { skip: !customerId });
 
-  if (loading) {
+  const isLoading =
+    isLoadingCustomer ||
+    (tabIndex === 1 && isLoadingVehicles) ||
+    (tabIndex === 2 && isLoadingAppts);
+  const hasError =
+    isErrorCustomer ||
+    (tabIndex === 1 && isErrorVehicles) ||
+    (tabIndex === 2 && isErrorAppts);
+
+  if (!customerId) {
     return (
-      <Container maxWidth="lg" sx={{ py: 3 }}>
-        <Stack spacing={2}>
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <Skeleton variant="circular" width={56} height={56} />
-            <Skeleton variant="text" width={240} height={36} />
-            <Skeleton
-              variant="rectangular"
-              width={100}
-              height={36}
-              sx={{ ml: "auto" }}
-            />
-          </Stack>
+      <Alert severity="warning">
+        No se proporcionó el ID de cliente en la URL.
+      </Alert>
+    );
+  }
 
-          <Paper sx={{ p: 2 }}>
-            <Grid container spacing={2}>
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Grid item xs={12} sm={6} md={4} key={i}>
-                  <Skeleton variant="rectangular" height={60} />
-                </Grid>
-              ))}
-            </Grid>
-          </Paper>
+  if (isLoadingCustomer) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "40vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
-          <Typography variant="h6">Vehículos</Typography>
-          <Grid container spacing={2}>
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Grid item xs={12} sm={6} md={4} key={i}>
-                <Skeleton variant="rectangular" height={180} />
-              </Grid>
-            ))}
-          </Grid>
-        </Stack>
-      </Container>
+  if (isErrorCustomer) {
+    return (
+      <Alert severity="error">
+        Error cargando cliente.{" "}
+        <Button color="inherit" size="small" onClick={refetchCustomer}>
+          Reintentar
+        </Button>
+      </Alert>
     );
   }
 
   if (!customer) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 3 }}>
-        <Typography color="error">
-          Cliente no encontrado en los mocks.
-        </Typography>
-      </Container>
-    );
+    return <Alert severity="info">No se encontró el cliente.</Alert>;
   }
 
+  const first_name = customer.first_name || customer.name || "";
+  const last_name = customer.last_name || customer.surname || "";
+  const email = customer.email;
+  const dni = customer.dni;
+  const address = customer.address || "-";
+  const phone_number = customer.phone_number || customer.phone || "";
+  const birth_date = customer.birth_date;
+
+  const age = ageFromBirthDate(birth_date);
+
+  const vehicles = vehiclesData || [];
+  const appointments = apptsData || [];
+
   return (
-    <Container maxWidth="lg" sx={{ py: 3 }}>
-      {/* Header */}
-      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
-        <Avatar sx={{ width: 56, height: 56, fontWeight: 600 }}>
-          {initials}
-        </Avatar>
-        <Box>
-          <Typography variant="h5">
-            {customer.first_name} {customer.last_name}
-          </Typography>
-        </Box>
-        <Tooltip title="Editar perfil (mock)">
-          <IconButton
-            aria-label="Editar"
-            onClick={() => navigate(`/customers/${customer.id}/edit`)}
-            sx={{ ml: "auto" }}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "grey.100",
+        p: 3,
+        display: "flex",
+        justifyContent: "center",
+        width: "100%",
+      }}
+    >
+      <Box sx={{ width: "100%", maxWidth: 1200 }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <Typography
+            variant="h4"
+            sx={{ mt: 3, mb: 3, fontWeight: "bold", color: "primary.main" }}
           >
-            <Edit />
-          </IconButton>
-        </Tooltip>
-      </Stack>
-
-      {/* Info personal según tu DTO */}
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Typography variant="h6" sx={{ mb: 1 }}>
-          Información personal
-        </Typography>
-        <Divider sx={{ mb: 2 }} />
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={4}>
-            <Typography variant="caption" color="text.secondary">
-              DNI
-            </Typography>
-            <Typography variant="body1">{customer.dni || "-"}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <Typography variant="caption" color="text.secondary">
-              Nombre
-            </Typography>
-            <Typography variant="body1">
-              {customer.first_name || "-"}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <Typography variant="caption" color="text.secondary">
-              Apellido
-            </Typography>
-            <Typography variant="body1">{customer.last_name || "-"}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <Typography variant="caption" color="text.secondary">
-              Fecha de nacimiento
-            </Typography>
-            <Typography variant="body1">
-              {formatDate(customer.birth_date)}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <Typography variant="caption" color="text.secondary">
-              Email
-            </Typography>
-            <Typography variant="body1">{customer.email || "-"}</Typography>
-          </Grid>
-        </Grid>
-      </Paper>
-
-      {/* Vehículos (una card por cada uno) */}
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        Vehículos
-      </Typography>
-      {vehicles.length === 0 ? (
-        <Card variant="outlined" sx={{ p: 2 }}>
-          <Typography color="text.secondary">
-            Este cliente aún no tiene vehículos asignados.
+            Detalle del Cliente
           </Typography>
-        </Card>
-      ) : (
-        <Grid container spacing={2}>
-          {vehicles.map((v) => (
-            <Grid item xs={12} sm={6} md={4} key={v.id}>
-              <VehicleCard vehicle={v} />
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                refetchCustomer();
+                if (tabIndex === 1) refetchVehicles();
+                if (tabIndex === 2) refetchAppts();
+              }}
+            >
+              Refrescar
+            </Button>
+            <Button variant="contained">Nuevo turno</Button>
+          </Stack>
+        </Stack>
+
+        <Paper sx={{ p: 3, borderRadius: 3 }}>
+          {/* Tabs */}
+          <Tabs
+            value={tabIndex}
+            onChange={(e, val) => setTabIndex(val)}
+            indicatorColor="secondary"
+            textColor="inherit"
+            sx={{ mb: 2 }}
+          >
+            <Tab
+              label="Vista General"
+              sx={{ textTransform: "none", fontWeight: 600 }}
+            />
+            <Tab
+              label={`Vehículos${Array.isArray(vehicles) ? ` (${vehicles.length})` : ""}`}
+              sx={{ textTransform: "none", fontWeight: 600 }}
+            />
+            <Tab
+              label="Turnos"
+              sx={{ textTransform: "none", fontWeight: 600 }}
+            />
+            <Tab
+              label="Documentación"
+              sx={{ textTransform: "none", fontWeight: 600 }}
+            />
+          </Tabs>
+
+          <Divider sx={{ mb: 3 }} />
+
+          {/* Header */}
+          <Box sx={{ display: "flex", alignItems: "center", py: 0 }}>
+            <CardContent
+              sx={{ display: "flex", alignItems: "center", gap: 2, p: 0 }}
+            >
+              <Avatar
+                sx={{ width: 100, height: 100, bgcolor: "primary.light" }}
+              >
+                {initialsFrom(first_name, last_name)}
+              </Avatar>
+              <Box>
+                <Typography variant="h5" fontWeight="bold">
+                  {`${last_name}, ${first_name}`}
+                </Typography>
+                <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
+                  {dni ? (
+                    <Chip icon={<BadgeIcon />} label={dni} size="small" />
+                  ) : null}
+                  {birth_date ? (
+                    <Chip
+                      icon={<CalendarMonthIcon />}
+                      label={`${formatDate(birth_date)}${typeof age === "number" ? ` • ${age} años` : ""}`}
+                      size="small"
+                    />
+                  ) : null}
+                </Stack>
+              </Box>
+            </CardContent>
+          </Box>
+
+          <Divider sx={{ mb: 3 }} />
+
+          {/* Estados por tab */}
+          {isLoading && (
+            <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+              <CircularProgress />
+            </Box>
+          )}
+          {hasError && (
+            <Alert severity="error">
+              Ocurrió un error.{" "}
+              <Button
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  if (tabIndex === 1) refetchVehicles();
+                  if (tabIndex === 2) refetchAppts();
+                }}
+              >
+                Reintentar
+              </Button>
+            </Alert>
+          )}
+
+          {/* Tab 0: Vista General */}
+          {tabIndex === 0 && !isLoading && !hasError && (
+            <Grid container columnSpacing={3} rowSpacing={3}>
+              <Grid xs={12} md={5}>
+                <LabeledValue
+                  label="DNI"
+                  value={dni}
+                  icon={<BadgeIcon color="action" />}
+                  copyable
+                />
+                <LabeledValue
+                  label="Correo Electrónico"
+                  value={email}
+                  icon={<MailOutlineIcon color="action" />}
+                  copyable
+                />
+                <LabeledValue
+                  label="Teléfono"
+                  value={phone_number}
+                  icon={<PhoneIphoneOutlinedIcon color="action" />}
+                  copyable
+                />
+              </Grid>
+              <Grid xs={12} md={4}>
+                <LabeledValue
+                  label="Dirección"
+                  value={address}
+                  icon={<LocationOnOutlinedIcon color="action" />}
+                />
+                <LabeledValue
+                  label="Fecha de Nacimiento"
+                  value={
+                    birth_date
+                      ? `${formatDate(birth_date)}${typeof age === "number" ? ` (${age} años)` : ""}`
+                      : "-"
+                  }
+                  icon={<CalendarMonthIcon color="action" />}
+                />
+              </Grid>
+              <Grid xs={12} md={3}>
+                <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                  <Button variant="contained">Editar</Button>
+                  <Button variant="outlined">Nuevo turno</Button>
+                </Box>
+              </Grid>
             </Grid>
-          ))}
-        </Grid>
-      )}
-    </Container>
+          )}
+
+          {/* Tab 1: Vehículos */}
+          {tabIndex === 1 && !isLoading && !hasError && (
+            <Box sx={{ mt: 1 }}>
+              {Array.isArray(vehicles) && vehicles.length > 0 ? (
+                <VehiclesList items={vehicles} />
+              ) : (
+                <Alert severity="info">
+                  Este cliente no tiene vehículos cargados.
+                </Alert>
+              )}
+            </Box>
+          )}
+
+          {/* Tab 2: Turnos */}
+          {tabIndex === 2 && !isLoading && !hasError && (
+            <Box sx={{ mt: 1 }}>
+              {Array.isArray(appointments) && appointments.length > 0 ? (
+                <AppointmentsList items={appointments} />
+              ) : (
+                <Alert severity="info">Este cliente no tiene turnos.</Alert>
+              )}
+            </Box>
+          )}
+
+          {/* Tab 3: Documentación (placeholder, hasta que expongas endpoint) */}
+          {tabIndex === 3 && (
+            <Box sx={{ mt: 1 }}>
+              <List>
+                <ListItem sx={{ borderRadius: 2 }}>
+                  <ListItemIcon>
+                    <DescriptionOutlinedIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Sin documentos"
+                    secondary="Cuando haya endpoint de documentos, los listamos aquí."
+                  />
+                </ListItem>
+              </List>
+            </Box>
+          )}
+        </Paper>
+      </Box>
+    </Box>
   );
 }
