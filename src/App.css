@@ -40,3 +40,23 @@
 .read-the-docs {
   color: #888;
 }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: block;     /* ❌ nada de centrar el contenedor raíz */
+  min-width: 0;
+  min-height: 100%;
+  place-items: initial;
+}
+
+#root {
+  width: 100%;
+  max-width: none;    /* ❌ fuera el 1280px */
+  padding: 0;         /* ❌ fuera el 2rem */
+  text-align: initial;
+}
