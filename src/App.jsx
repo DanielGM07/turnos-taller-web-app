@@ -1,7 +1,7 @@
-'./pages/CustomerDetail.jsx'
-import './App.css'
-import { Outlet } from 'react-router-dom'
+// src/App.jsx
+import "./App.css";
+import { Outlet } from "react-router-dom";
 
 export default function App() {
-  return <Outlet />
+  return <Outlet />;
 }

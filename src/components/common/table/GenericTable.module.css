@@ -1,0 +1,9 @@
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.addButton {
+  border-radius: 20px !important;
+}

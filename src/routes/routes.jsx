@@ -1,20 +1,25 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom'
-import App from '../App.jsx'
-import Layout from '../layout/Layout.jsx'
-import DashboardPage from '../pages/dashboard/DashboardPage.jsx'
+import { createBrowserRouter } from "react-router-dom";
+import App from "../App.jsx";
+import Layout from "../layout/Layout.jsx";
+import PlaygroundTheme from "../pages/playground-theme/PlaygroundTheme.jsx";
+import CustomerDetailView from "../pages/customer/CustomerDetailView.jsx";
 
 export const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <App />,
     children: [
       {
         element: <Layout />,
         children: [
-          { index: true, element: <Navigate to="dashboard" replace /> },
-          { path: 'dashboard', element: <DashboardPage /> },
+          // el login después te redirige a /detail/:id
+          { path: "detail/:id", element: <CustomerDetailView /> },
         ],
+      },
+      {
+        path: "playground-theme",
+        element: <PlaygroundTheme />,
       },
     ],
   },
-])
+]);
