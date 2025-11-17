@@ -1,16 +1,33 @@
-import { configureStore } from "@reduxjs/toolkit";
-import { setupListeners } from "@reduxjs/toolkit/query";
-import { baseApi } from "../apis/base.api";
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
+import { persistReducer, persistStore } from "redux-persist";
+import storage from "redux-persist/lib/storage";
 
-export const store = configureStore({
-  reducer: {
-    [baseApi.reducerPath]: baseApi.reducer,
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({ serializableCheck: false }).concat(
-      baseApi.middleware,
-    ),
-  devTools: import.meta.env.MODE !== "production",
+import { baseApi } from "../apis/base.api.js";
+import workshopUserReducer from "./workshop-user/slice.js";
+
+const persistConfig = {
+  key: "workshop_root",
+  storage,
+  whitelist: ["workshop_user"],
+};
+
+const rootReducer = combineReducers({
+  workshop_user: workshopUserReducer,
+  [baseApi.reducerPath]: baseApi.reducer,
 });
 
-setupListeners(store.dispatch);
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+export const store = configureStore({
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ["persist/PERSIST"],
+      },
+    }).concat(baseApi.middleware),
+});
+
+export const persistor = persistStore(store);
+
+export default store;
