@@ -1,6 +1,6 @@
 // src/pages/customer/CustomerDetailView.jsx
 import { Box } from "@mui/material";
-import CustomerDetail from "./components/CustomerDetail.jsx";
+import CustomerDetail from "./components/CustomerDetail";
 
 function CustomerDetailView() {
   return (

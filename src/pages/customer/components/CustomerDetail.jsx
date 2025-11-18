@@ -32,6 +32,8 @@ import LabeledValue from "./LabeledValue.jsx";
 import AppointmentsList from "./AppointmentsList.jsx";
 import VehiclesList from "./VehiclesList.jsx";
 
+import theme from "../../../styles/theme.js";
+
 export default function CustomerDetail() {
   const [tabIndex, setTabIndex] = useState(0);
 
@@ -94,7 +96,7 @@ export default function CustomerDetail() {
     <Box
       sx={{
         minHeight: "100vh",
-        bgcolor: "grey.100",
+        bgcolor: theme.palette.background.default,
         p: 3,
         display: "flex",
         justifyContent: "center",

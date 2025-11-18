@@ -4,45 +4,47 @@ import { createTheme } from "@mui/material/styles";
 const theme = createTheme({
   palette: {
     mode: "dark",
+
     primary: {
-      // Acento principal: cian/teal estilo moderno
-      main: "#22C55E",
-      contrastText: "#020617",
+      main: "#FFA116", // LeetCode orange
+      contrastText: "#15141A",
     },
     secondary: {
-      // Acento secundario: azul eléctrico suave
-      main: "#38BDF8",
-      contrastText: "#020617",
+      main: "#38BDF8", // buen secundario (azul)
+      contrastText: "#15141A",
     },
+
     success: {
-      main: "#22C55E",
-      contrastText: "#022c22",
+      main: "#4ADE80",
+      contrastText: "#0F172A",
     },
     warning: {
-      main: "#F97316",
-      contrastText: "#111827",
+      main: "#FACC15",
+      contrastText: "#1E1E26",
     },
     error: {
-      main: "#EF4444",
-      contrastText: "#FEF2F2",
+      main: "#FB7185",
+      contrastText: "#1E1E26",
     },
     info: {
-      main: "#0EA5E9",
-      contrastText: "#0B1120",
+      main: "#38BDF8",
+      contrastText: "#1E1E26",
     },
+
     background: {
-      // Fondo casi negro
-      default: "#020617", // slate-950
-      // Superficies principales (cards, panels)
-      paper: "#0F172A", // slate-900
+      default: "#15141A", // Fondo puro estilo LeetCode dark
+      paper: "#1E1E26", // Superficies
     },
-    divider: "rgba(148, 163, 184, 0.35)",
+
+    divider: "rgba(255, 255, 255, 0.08)",
+
     text: {
-      primary: "#E5E7EB", // gris claro
-      secondary: "#9CA3AF", // gris medio
+      primary: "#F5F5F5",
+      secondary: "#9CA3AF",
       disabled: "#6B7280",
     },
   },
+
   typography: {
     fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
     h1: { fontWeight: 700 },
@@ -50,74 +52,89 @@ const theme = createTheme({
     h3: { fontWeight: 600 },
     h4: { fontWeight: 600 },
     h5: { fontWeight: 500 },
-    body1: { color: "#E5E7EB", fontSize: 14 },
+    body1: { color: "#F5F5F5", fontSize: 14 },
     body2: { color: "#9CA3AF", fontSize: 13 },
     button: { textTransform: "none", fontWeight: 600 },
   },
+
   shape: { borderRadius: 12 },
+
   components: {
     MuiPaper: {
       styleOverrides: {
         root: {
           backgroundImage: "none",
+          backgroundColor: "#1E1E26",
           borderRadius: 16,
         },
       },
     },
+
     MuiCard: {
       styleOverrides: {
         root: {
-          backgroundColor: "#020617",
+          backgroundColor: "#15141A",
           borderRadius: 16,
-          border: "1px solid rgba(148, 163, 184, 0.2)",
+          border: "1px solid #2D2D35",
         },
       },
     },
+
     MuiAppBar: {
       styleOverrides: {
         root: {
           backgroundImage: "none",
-          backgroundColor: "#020617",
+          backgroundColor: "#15141A",
           boxShadow: "0 20px 40px rgba(0,0,0,0.85)",
         },
       },
     },
+
     MuiDrawer: {
       styleOverrides: {
         paper: {
-          backgroundColor: "#020617",
-          borderRight: "1px solid rgba(15, 23, 42, 0.8)",
+          backgroundColor: "#15141A",
+          borderRight: "1px solid #2D2D35",
         },
       },
     },
+
     MuiButton: {
       styleOverrides: {
         root: {
           borderRadius: 999,
           textTransform: "none",
           padding: "8px 20px",
+          "&:hover": {
+            backgroundColor: "#FFB63D", // hover estilo LeetCode
+          },
         },
       },
     },
+
     MuiTableRow: {
       styleOverrides: {
         root: {
           "&:nth-of-type(odd)": {
-            backgroundColor: "rgba(15, 23, 42, 0.9)",
+            backgroundColor: "#1E1E26",
           },
           "&:hover": {
-            backgroundColor: "rgba(30, 64, 175, 0.4)",
+            backgroundColor: "#23232C",
           },
         },
       },
     },
+
     MuiChip: {
       styleOverrides: {
         root: {
           borderRadius: 999,
+          backgroundColor: "#27272F",
+          color: "#F5F5F5",
         },
       },
     },
+
     MuiTextField: {
       defaultProps: {
         variant: "outlined",

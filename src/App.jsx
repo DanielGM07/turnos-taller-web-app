@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import { ReactRouterAppProvider } from "@toolpad/core/react-router";
 import BuildCircleIcon from "@mui/icons-material/BuildCircle";
 
-// import theme from "./styles/theme.js";
+import theme from "./styles/theme.js";
 import useApp from "./hooks/useApp.jsx";
 
 export default function App() {
@@ -12,7 +12,7 @@ export default function App() {
   return (
     <ReactRouterAppProvider
       navigation={NAVIGATION}
-      // theme={theme}
+      theme={theme}
       branding={{
         title: "Turnos Taller",
         logo: <BuildCircleIcon />,

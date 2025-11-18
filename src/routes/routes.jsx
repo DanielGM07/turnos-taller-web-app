@@ -1,5 +1,4 @@
-// src/routes/routes.jsx (o donde lo tengas)
-
+// src/routes/routes.jsx
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -8,10 +7,13 @@ import Layout from "../layout/Layout.jsx";
 import PlaygroundTheme from "../pages/playground-theme/PlaygroundTheme.jsx";
 
 import CustomerDetailView from "../pages/customer/CustomerDetailView.jsx";
+import CustomerCreateVehicleView from "../pages/customer/CustomerCreateVehicleView.jsx";
 import MechanicTestView from "../pages/mechanic/MechanicTestView.jsx";
 import AdminTestView from "../pages/admin/AdminTestView.jsx";
 import Login from "../pages/auth/Login.jsx";
 import { ROLES } from "../constants/roles.constants.js";
+
+import CustomerRootElement from "./CustomerRootElement.jsx";
 
 function RootElement() {
   const user = useSelector((state) => state.workshop_user);
@@ -22,15 +24,11 @@ function RootElement() {
 
   switch (user.role) {
     case ROLES.CUSTOMER:
-      // Ahora redirigimos a la ruta con prefijo de rol
       return <Navigate to={`/customer/detail/${user.id}`} replace />;
-
     case ROLES.MECHANIC:
       return <Navigate to="/mechanic" replace />;
-
     case ROLES.ADMIN:
       return <Navigate to="/admin" replace />;
-
     default:
       return <Login />;
   }
@@ -45,39 +43,40 @@ export const router = createBrowserRouter([
         path: "/",
         element: <Layout />,
         children: [
-          // Decide a qué ruta ir según el rol
           { index: true, element: <RootElement /> },
 
-          // CUSTOMER
+          // Rutas de CUSTOMER
           {
             path: "customer",
             children: [
-              // /customer/detail/:id
+              // /customer → decide redirección
+              { index: true, element: <CustomerRootElement /> },
+
+              // /customer/detail/:id → detalle de customer
               { path: "detail/:id", element: <CustomerDetailView /> },
+
+              // /customer/vehicles/new → crear vehículo
+              {
+                path: "create-vehicle",
+                element: <CustomerCreateVehicleView />,
+              },
             ],
           },
 
-          // MECHANIC
+          // Rutas de MECHANIC
           {
             path: "mechanic",
-            children: [
-              // /mechanic
-              { index: true, element: <MechanicTestView /> },
-            ],
+            children: [{ index: true, element: <MechanicTestView /> }],
           },
 
-          // ADMIN
+          // Rutas de ADMIN
           {
             path: "admin",
-            children: [
-              // /admin
-              { index: true, element: <AdminTestView /> },
-            ],
+            children: [{ index: true, element: <AdminTestView /> }],
           },
         ],
       },
 
-      // Ruta fuera del layout principal
       {
         path: "playground-theme",
         element: <PlaygroundTheme />,
