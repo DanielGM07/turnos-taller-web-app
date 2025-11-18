@@ -1,4 +1,4 @@
-// src/components/form/GenericFormFieldRegistry.js
+// src/components/form/GenericFormFieldRegistry.jsx
 
 import FormTextField from "./FormTextField.jsx";
 import FormSelectField from "./FormSelectField.jsx";
@@ -13,6 +13,10 @@ export const FIELD_COMPONENTS = {
   number: (props) => <FormTextField {...props} type="number" />,
   date: (props) => <FormTextField {...props} type="date" />,
   time: (props) => <FormTextField {...props} type="time" />,
+
+  // 👇 NUEVO TIPO PARA FECHA + HORA
+  datetime: (props) => <FormTextField {...props} type="datetime-local" />,
+
   select: FormSelectField,
   checkbox: FormCheckboxField,
   radio: FormRadioGroupField,

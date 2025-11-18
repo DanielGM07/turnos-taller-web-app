@@ -10,6 +10,11 @@ const CUSTOMER_NAVIGATION = [
     title: "Registrar vehiculo",
     icon: "",
   },
+  {
+    segment: "customer/create-appointment",
+    title: "Nuevo turno",
+    icon: "",
+  },
 ];
 
 export default CUSTOMER_NAVIGATION;

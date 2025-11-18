@@ -6,6 +6,7 @@ import App from "../App.jsx";
 import Layout from "../layout/Layout.jsx";
 import PlaygroundTheme from "../pages/playground-theme/PlaygroundTheme.jsx";
 
+import CustomerCreateAppointmentView from "../pages/customer/CustomerCreateAppointmentView.jsx";
 import CustomerDetailView from "../pages/customer/CustomerDetailView.jsx";
 import CustomerCreateVehicleView from "../pages/customer/CustomerCreateVehicleView.jsx";
 import MechanicTestView from "../pages/mechanic/MechanicTestView.jsx";
@@ -59,6 +60,11 @@ export const router = createBrowserRouter([
               {
                 path: "create-vehicle",
                 element: <CustomerCreateVehicleView />,
+              },
+              // 👇 NUEVO: crear turno
+              {
+                path: "create-appointment",
+                element: <CustomerCreateAppointmentView />,
               },
             ],
           },

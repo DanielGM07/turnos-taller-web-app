@@ -29,10 +29,11 @@ import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 
 import useCustomerDetail from "../hooks/useCustomerDetail.jsx";
 import LabeledValue from "./LabeledValue.jsx";
-import AppointmentsList from "./AppointmentsList.jsx";
 import VehiclesList from "./VehiclesList.jsx";
 
 import theme from "../../../styles/theme.js";
+
+import CustomerAppointmentsTab from "./CustomerAppointmentsTab.jsx"; // ✅ nuevo
 
 export default function CustomerDetail() {
   const [tabIndex, setTabIndex] = useState(0);
@@ -278,13 +279,7 @@ export default function CustomerDetail() {
 
           {/* Tab 2: Turnos */}
           {tabIndex === 2 && !isLoading && !hasError && (
-            <Box sx={{ mt: 1 }}>
-              {Array.isArray(appointments) && appointments.length > 0 ? (
-                <AppointmentsList items={appointments} />
-              ) : (
-                <Alert severity="info">Este cliente no tiene turnos.</Alert>
-              )}
-            </Box>
+            <CustomerAppointmentsTab customerId={customerId} />
           )}
 
           {/* Tab 3: Documentación */}

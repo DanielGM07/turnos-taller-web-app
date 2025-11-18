@@ -17,8 +17,8 @@ import {
 import { Add } from "@mui/icons-material";
 import SearchAccordion from "./SearchAccordion";
 import styles from "./GenericTable.module.css";
-import { formatDate } from "../../utils/formatDate.utils";
-import { isDateValue } from "../../utils/isDateValue.utils";
+import { formatDate } from "../../../utils/formatDate.utils";
+import { isDateValue } from "../../../utils/isDateValue.utils";
 
 const GenericTable = ({
   title,
