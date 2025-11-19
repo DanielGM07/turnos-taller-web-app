@@ -1,53 +1,29 @@
 // src/pages/customer/components/CustomerAppointmentsTab.jsx
 import PropTypes from "prop-types";
 import { Box, Alert } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import GenericTable from "../../../components/common/table/GenericTable.jsx";
 import useCustomerAppointmentsTab from "../hooks/useCustomerAppointmentsTab.jsx";
 
 const CustomerAppointmentsTab = ({ customerId }) => {
-  const navigate = useNavigate();
-
-  const {
-    columns,
-    searchFields,
-    data,
-    isLoading,
-    isError,
-    error,
-    onSearch,
-    onClear,
-  } = useCustomerAppointmentsTab(customerId);
-
-  if (!customerId) {
-    return (
-      <Alert severity="warning">
-        No se proporcionó el ID de cliente para cargar los turnos.
-      </Alert>
-    );
-  }
+  const { columns, data, isLoading, isError, error } =
+    useCustomerAppointmentsTab(customerId);
 
   return (
     <Box sx={{ mt: 1 }}>
+      {/* Mensaje de error general */}
+      {isError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Error al cargar los turnos: {error?.message || "Desconocido"}
+        </Alert>
+      )}
+
       <GenericTable
-        title="Turnos del cliente"
-        subtitle="Listado de todos los turnos asociados a este cliente"
+        title="Mis turnos"
         columns={columns}
-        data={data}
+        data={Array.isArray(data) ? data : []}
         isLoading={isLoading}
         isError={isError}
         error={error}
-        searchFields={searchFields}
-        onSearch={onSearch}
-        onClear={onClear}
-        // ⬇️ Botón para solicitar turno
-        addButton={{
-          label: "Solicitar turno",
-          onClick: () =>
-            navigate(`/customer/create-appointment?customerId=${customerId}`),
-        }}
-        // Sin paginación por ahora (el backend devuelve array simple)
-        pagination={null}
       />
     </Box>
   );

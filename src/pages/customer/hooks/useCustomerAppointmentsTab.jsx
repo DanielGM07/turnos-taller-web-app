@@ -1,11 +1,8 @@
 // src/pages/customer/hooks/useCustomerAppointmentsTab.jsx
 import { useMemo } from "react";
-import useSearchAccordion from "../../../components/common/table/hooks/useSearchAccordion";
 import { useCustomerListAppointmentsQuery } from "../../../apis/customer/customer.api";
 
 const useCustomerAppointmentsTab = (customerId) => {
-  const { searchValue, handleSearch, handleClear } = useSearchAccordion();
-
   // Traemos TODOS los turnos del customer (sin filtros por ahora)
   const {
     data: appointments = [],
@@ -63,72 +60,12 @@ const useCustomerAppointmentsTab = (customerId) => {
     [],
   );
 
-  // Campos de búsqueda (solo UI, sin lógica backend todavía)
-  const searchFields = useMemo(
-    () => [
-      {
-        name: "status",
-        label: "Estado",
-        type: "select",
-        defaultValue: "",
-        options: [
-          { value: "", label: "Todos" },
-          { value: "PENDING", label: "Pendiente" },
-          { value: "CONFIRMED", label: "Confirmado" },
-          { value: "IN_PROGRESS", label: "En curso" },
-          { value: "COMPLETED", label: "Completado" },
-          { value: "CANCELLED", label: "Cancelado" },
-        ],
-      },
-      {
-        name: "from",
-        label: "Desde (fecha)",
-        type: "text",
-        inputType: "date",
-        defaultValue: "",
-      },
-      {
-        name: "to",
-        label: "Hasta (fecha)",
-        type: "text",
-        inputType: "date",
-        defaultValue: "",
-      },
-      {
-        name: "serviceName",
-        label: "Servicio",
-        type: "text",
-        defaultValue: "",
-      },
-      {
-        name: "workshopName",
-        label: "Taller",
-        type: "text",
-        defaultValue: "",
-      },
-      {
-        name: "mechanicName",
-        label: "Mecánico",
-        type: "text",
-        defaultValue: "",
-      },
-    ],
-    [],
-  );
-
-  // Por ahora searchValue no se usa para pedir al backend.
-  // Más adelante lo mapeamos a { status, from, to, ... } en la query.
-
   return {
     columns,
-    searchFields,
     data: appointments,
     isLoading,
     isError,
     error,
-    onSearch: handleSearch,
-    onClear: handleClear,
-    searchValue, // por si luego querés verlo en el componente
   };
 };
 

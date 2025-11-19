@@ -11,6 +11,11 @@ const MECHANIC_NAVIGATION = [
     icon: "",
   },
   {
+    segment: "mechanic/services", // → /mechanic/services
+    title: "Servicios",
+    icon: "",
+  },
+  {
     segment: "mechanic/ratings", // → /mechanic/ratings
     title: "Mis calificaciones",
     icon: "",

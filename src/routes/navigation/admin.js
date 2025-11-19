@@ -1,8 +1,27 @@
-// src/routes/navigation/admin.js
 const ADMIN_NAVIGATION = [
   {
-    segment: "admin", // → /admin
-    title: "Panel admin",
+    segment: "admin",
+    title: "Dashboard",
+    icon: "",
+  },
+  {
+    segment: "admin/workshops",
+    title: "Talleres",
+    icon: "",
+  },
+  {
+    segment: "admin/create-workshop",
+    title: "Crear taller",
+    icon: "",
+  },
+  {
+    segment: "admin/mechanics",
+    title: "Mecánicos",
+    icon: "",
+  },
+  {
+    segment: "admin/create-mechanic",
+    title: "Crear mecánico",
     icon: "",
   },
 ];

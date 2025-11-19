@@ -15,6 +15,11 @@ const CUSTOMER_NAVIGATION = [
     title: "Nuevo turno",
     icon: "",
   },
+  {
+    segment: "customer/payments",
+    title: "Mis pagos",
+    icon: "",
+  },
 ];
 
 export default CUSTOMER_NAVIGATION;

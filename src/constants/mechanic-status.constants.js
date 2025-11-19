@@ -1,0 +1,4 @@
+export const MECHANIC_STATUS = {
+  ENABLED: "ENABLED",
+  DISABLED: "DISABLED",
+};

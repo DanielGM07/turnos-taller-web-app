@@ -17,6 +17,7 @@ export const baseApi = createApi({
     "repair",
     "service",
     "mechanic-review",
+    "payment",
   ],
   endpoints: () => ({}),
 });
