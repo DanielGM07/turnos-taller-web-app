@@ -10,7 +10,9 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 import useLogin from "./hooks/useLogin.jsx";
+import theme from "../../styles/theme.js";
 
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,6 +25,8 @@ function Login() {
     isSubmitting,
   } = useLogin();
 
+  const navigate = useNavigate();
+
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
@@ -34,7 +38,7 @@ function Login() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        bgcolor: "grey.100",
+        bgcolor: theme.palette.background,
       }}
     >
       <Paper
@@ -100,17 +104,15 @@ function Login() {
           </Button>
         </Box>
 
-        <Box sx={{ mt: 3 }}>
-          <Typography variant="body2">Credenciales de prueba:</Typography>
-          <Typography variant="caption" component="div">
-            Customer: (cualquier correo con la palabra <b>customer</b>)
-          </Typography>
-          <Typography variant="caption" component="div">
-            Mechanic: (cualquier correo con la palabra <b>mechanic</b>)
-          </Typography>
-          <Typography variant="caption" component="div">
-            Admin: (cualquier correo con la palabra <b>admin</b>)
-          </Typography>
+        <Box sx={{ mt: 3, textAlign: "center" }}>
+          <Typography variant="body2">¿No tienes una cuenta?</Typography>
+          <Button
+            size="small"
+            sx={{ mt: 1 }}
+            onClick={() => navigate("/register")}
+          >
+            Crear cuenta
+          </Button>
         </Box>
       </Paper>
     </Box>

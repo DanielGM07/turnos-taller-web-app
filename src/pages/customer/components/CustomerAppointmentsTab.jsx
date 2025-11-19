@@ -1,10 +1,13 @@
 // src/pages/customer/components/CustomerAppointmentsTab.jsx
 import PropTypes from "prop-types";
 import { Box, Alert } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import GenericTable from "../../../components/common/table/GenericTable.jsx";
 import useCustomerAppointmentsTab from "../hooks/useCustomerAppointmentsTab.jsx";
 
 const CustomerAppointmentsTab = ({ customerId }) => {
+  const navigate = useNavigate();
+
   const {
     columns,
     searchFields,
@@ -37,6 +40,12 @@ const CustomerAppointmentsTab = ({ customerId }) => {
         searchFields={searchFields}
         onSearch={onSearch}
         onClear={onClear}
+        // ⬇️ Botón para solicitar turno
+        addButton={{
+          label: "Solicitar turno",
+          onClick: () =>
+            navigate(`/customer/create-appointment?customerId=${customerId}`),
+        }}
         // Sin paginación por ahora (el backend devuelve array simple)
         pagination={null}
       />

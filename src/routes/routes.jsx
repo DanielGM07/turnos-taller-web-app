@@ -9,12 +9,18 @@ import PlaygroundTheme from "../pages/playground-theme/PlaygroundTheme.jsx";
 import CustomerCreateAppointmentView from "../pages/customer/CustomerCreateAppointmentView.jsx";
 import CustomerDetailView from "../pages/customer/CustomerDetailView.jsx";
 import CustomerCreateVehicleView from "../pages/customer/CustomerCreateVehicleView.jsx";
-import MechanicTestView from "../pages/mechanic/MechanicTestView.jsx";
+
+import MechanicDetailView from "../pages/mechanic/MechanicDetailView.jsx";
+import MechanicRatingsView from "../pages/mechanic/MechanicRatingsView.jsx";
+import MechanicWorkshopsView from "../pages/mechanic/MechanicWorkshopsView.jsx"; // 👈 nuevo
+
 import AdminTestView from "../pages/admin/AdminTestView.jsx";
 import Login from "../pages/auth/Login.jsx";
 import { ROLES } from "../constants/roles.constants.js";
 
 import CustomerRootElement from "./CustomerRootElement.jsx";
+import MechanicRootElement from "./MechanicRootElement.jsx";
+import Register from "../pages/auth/Register.jsx";
 
 function RootElement() {
   const user = useSelector((state) => state.workshop_user);
@@ -45,23 +51,18 @@ export const router = createBrowserRouter([
         element: <Layout />,
         children: [
           { index: true, element: <RootElement /> },
+          { path: "register", element: <Register /> }, // 👈 agregar esto
 
-          // Rutas de CUSTOMER
+          // CUSTOMER
           {
             path: "customer",
             children: [
-              // /customer → decide redirección
               { index: true, element: <CustomerRootElement /> },
-
-              // /customer/detail/:id → detalle de customer
               { path: "detail/:id", element: <CustomerDetailView /> },
-
-              // /customer/vehicles/new → crear vehículo
               {
                 path: "create-vehicle",
                 element: <CustomerCreateVehicleView />,
               },
-              // 👇 NUEVO: crear turno
               {
                 path: "create-appointment",
                 element: <CustomerCreateAppointmentView />,
@@ -69,13 +70,18 @@ export const router = createBrowserRouter([
             ],
           },
 
-          // Rutas de MECHANIC
+          // MECHANIC
           {
             path: "mechanic",
-            children: [{ index: true, element: <MechanicTestView /> }],
+            children: [
+              { index: true, element: <MechanicRootElement /> },
+              { path: "detail/:id", element: <MechanicDetailView /> },
+              { path: "workshops", element: <MechanicWorkshopsView /> }, // 👈 nuevo
+              { path: "ratings", element: <MechanicRatingsView /> },
+            ],
           },
 
-          // Rutas de ADMIN
+          // ADMIN
           {
             path: "admin",
             children: [{ index: true, element: <AdminTestView /> }],

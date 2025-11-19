@@ -145,6 +145,15 @@ export const mechanicApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["workshop"],
     }),
+
+    // ===== Mis calificaciones =====
+    listMyReviews: builder.query({
+      query: ({ mechanicId }) => ({
+        url: `/mechanic-review/mechanic/${mechanicId}`,
+        method: "GET",
+      }),
+      providesTags: ["mechanic-review"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -166,4 +175,5 @@ export const {
   useListMyWorkshopsQuery,
   useEnrollWorkshopMutation,
   useUnenrollWorkshopMutation,
+  useListMyReviewsQuery, // 👈 nuevo hook
 } = mechanicApi;
